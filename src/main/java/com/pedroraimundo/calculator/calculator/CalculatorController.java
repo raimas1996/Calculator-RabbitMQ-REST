@@ -1,5 +1,9 @@
 package com.pedroraimundo.calculator.calculator;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +20,54 @@ public class CalculatorController {
 	
 	@GetMapping("/sum")
 	public ResponseEntity<Object> sum(@RequestParam(name="a") int a, @RequestParam(name="b") int b) {
+		Map<String, Object> json = new HashMap<>();
 		if (producer.sendMessageToBroker(String.valueOf(a))) {
-			return ResponseEntity.ok("[a=" + a + ", b=" + b + "] has been sent to broker successfully!");
+			json.put("result", new BigDecimal(a + b));
+			return ResponseEntity.ok(json);
 		} else {
-			return ResponseEntity.status(500).body("Error: [a=" + a + ", b=" + b + "] has NOT been sent to broker!");
+			json.put("result", "Error: [a=" + a + ", b=" + b + "] has NOT been sent to broker!");
+			return ResponseEntity.status(500).body(json);
+		}
+	}
+	
+	@GetMapping("/subtract")
+	public ResponseEntity<Object> subtract(@RequestParam(name="a") int a, @RequestParam(name="b") int b) {
+		Map<String, Object> json = new HashMap<>();
+		if (producer.sendMessageToBroker(String.valueOf(a))) {
+			json.put("result", new BigDecimal(a - b));
+			return ResponseEntity.ok(json);
+		} else {
+			json.put("result", "Error: [a=" + a + ", b=" + b + "] has NOT been sent to broker!");
+			return ResponseEntity.status(500).body(json);
+		}
+	}
+	
+	@GetMapping("/multiply")
+	public ResponseEntity<Object> multiply(@RequestParam(name="a") int a, @RequestParam(name="b") int b) {
+		Map<String, Object> json = new HashMap<>();
+		if (producer.sendMessageToBroker(String.valueOf(a))) {
+			json.put("result", new BigDecimal(a * b));
+			return ResponseEntity.ok(json);
+		} else {
+			json.put("result", "Error: [a=" + a + ", b=" + b + "] has NOT been sent to broker!");
+			return ResponseEntity.status(500).body(json);
+		}
+	}
+	
+	@GetMapping("/divide")
+	public ResponseEntity<Object> divide(@RequestParam(name="a") int a, @RequestParam(name="b") int b) {
+		Map<String, Object> json = new HashMap<>();
+		if (producer.sendMessageToBroker(String.valueOf(a))) {
+			try {
+				json.put("result", new BigDecimal(a / b));
+			} catch (ArithmeticException e) {
+				System.out.println("Error: Value cannot be divided by zero!");
+				json.put("result", "NaN");
+			}
+			return ResponseEntity.ok(json);
+		} else {
+			json.put("result", "Error: [a=" + a + ", b=" + b + "] has NOT been sent to broker!");
+			return ResponseEntity.status(500).body(json);
 		}
 	}
 }
