@@ -1,4 +1,5 @@
 version: '3.1'
+
 services:
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -11,3 +12,17 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+      
+  calculator:
+      image: calculator
+      container_name: calculator-app
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "8081:8080"
+      restart: always
+      environment:
+        - SPRING_RABBITMQ_HOST=rabbitmq
+      depends_on:
+        - rabbitmq
